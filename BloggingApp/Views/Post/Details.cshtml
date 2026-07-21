@@ -73,10 +73,21 @@
             @foreach(var comment in Model.Comments)
             {
                 <div class="p-3 card mb-3 shadow-sm">
-                    <h5 class="card-title">@comment.Username</h5>
+                    <div class="d-flex justify-content-between"> 
+                        <h5 class="card-title">@comment.Username</h5>
+                        @if (User.Identity.IsAuthenticated == true && User.IsInRole("Admin"))
+                        {
+                            <form asp-action="DeleteComment" asp-controller="Post" method="post"> 
+                                <input name="id" value="@comment.Id" hidden />
+                                <button class="btn btn-danger p-1" onclick="return confirm('Are you sure?');">Delete</button>
+                            </form>
+                        }
+                    </div>
                     <p class="card-text text-muted">@comment.CommentDate.ToString("MMM dd, yyyy")</p>
                     <p class="card-text">@comment.Content</p>
+
                 </div>
+
             }
         </div>
 

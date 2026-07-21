@@ -285,7 +285,21 @@ namespace BloggingApp.Controllers
             TempData["Success"] = "The Blogpost deleted successfully.";
             return RedirectToAction("Index", "Post");
         }
-    
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var comments = await context.Comments.FirstOrDefaultAsync(c => c.Id == id);
+
+            if (comments == null) return NotFound();
+
+            context.Comments.Remove(comments);
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Post", new { id = comments.PostId });
+        }
+
         [HttpGet]
         [Authorize(Roles = "Admin, PostOwner")]
         public async Task<IActionResult> MyBlogs(int? categoryId)
