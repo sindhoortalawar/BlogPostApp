@@ -1,0 +1,56 @@
+﻿@model LoginViewModel
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Login";
+}
+
+<style>
+    .content-wrapper{
+        padding : 20px;
+        max-width : 1000px;
+        margin : auto 0;
+        font-family : sansa-serif;
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="row">
+        <div class="col-6 mt-2">
+            <h2>Login</h2>
+        </div>
+        <div class="col-6 text-end">
+        </div>
+
+    </div>
+
+    <form asp-action="Login" asp-controller="Auth" method="post" enctype="multipart/form-data">
+        <div class="mt-2 form-group">
+            <div asp-validation-summary="All"></div>
+        </div>
+
+        <div class="mt-2 form-group">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mt-2 form-group">
+            <label asp-for="Password">Email</label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2 p-2">Login</button>
+
+        <div class="mt-2 form-group">
+            Not Registered? Click 
+            <a asp-action="Register" asp-controller="Auth">Here</a>
+            to Register.
+        </div>
+    
+    </form>
+</div>
+
+

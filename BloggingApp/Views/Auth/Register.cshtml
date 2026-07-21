@@ -1,0 +1,248 @@
+﻿@model RegisterViewModel
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Register";
+} 
+
+@* <style>
+    .content-wrapper{
+        padding : 20px;
+        max-width : 1000px;
+        margin : auto 0;
+        font-family : sansa-serif;
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="row">
+        <div class="col-6 mt-2">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col-6 text-end">
+        </div>
+
+    </div>
+
+    <form asp-action="Register" asp-controller="Auth" method="post" enctype="multipart/form-data">
+        <div class="mt-2 form-group">
+            <div asp-validation-summary="All" class="text-danger"></div>
+        </div>
+
+        <div class="mt-2 form-group">
+            <label asp-for="FullName">Name</label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+        <div class="mt-2 form-group">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mt-2 form-group">
+            <label asp-for="Password">Email</label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="mt-2 form-group">
+            <label asp-for="ConfirmPassword">Confirm Password</label>
+            <input asp-for="ConfirmPassword" class="form-control" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+
+        
+        <div class="mt-2 form-group">
+            <label asp-for="DateOfBirth">Date Of Birth</label>
+            <input type="date" asp-for="DateOfBirth" class="form-control" />
+            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+        </div>
+
+        <div class="mt-2 form-group">
+            <label asp-for="Gender">Gender</label>
+            <select asp-for="Gender" class="form-select">
+                <option value="">-- Select --</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Others">Others</option>
+            </select>
+            <span asp-validation-for="Gender" class="text-danger"></span>
+        </div>
+
+        <div class="mt-2 form-group">
+            <label asp-for="PhoneNumber">Phone Number</label>
+            <input asp-for="PhoneNumber" class="form-control" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <div class="mt-2 form-group">
+            <label asp-for="Address">Address</label>
+            <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+
+        <div class="mt-2 form-group">
+            <label asp-for="ProfilePicture">Profile Picture</label>
+            <input type="file" asp-for="ProfilePicture" class="form-control" accept=".jpg,.jpeg,.png" />
+            <span asp-validation-for="ProfilePicture" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2 p-2">Register</button>
+
+        <div class="mt-2 form-group">
+            Already Registered? Click here to
+            <a asp-action="Login" asp-controller="Auth">Login</a>.
+        </div>
+    
+    </form>
+</div> *@
+
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        
+                        <!-- Left Form Panel -->
+                        <div class="col-lg-8 p-1 p-md-3">
+                            <h2 class="mb-4 fw-bold text-White mt-0 text-center">@ViewData["Title"]</h2>
+                            <form asp-action="Register" asp-controller="Auth" method="post" enctype="multipart/form-data">
+                                <div asp-validation-summary="All" class="text-danger mb-3 small"></div>
+
+                                <div class="row g-3">
+
+                                    <div class="col-md-12">
+                                        <label asp-for="FullName" class="form-label font-weight-bold small text-muted">Full Name</label>
+                                        <input asp-for="FullName" class="form-control" placeholder="John Doe" />
+                                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Email" class="form-label small text-muted"></label>
+                                        <input asp-for="Email" class="form-control" placeholder="name@example.com" />
+                                        <span asp-validation-for="Email" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="PhoneNumber" class="form-label small text-muted"></label>
+                                        <input asp-for="PhoneNumber" class="form-control" placeholder="" />
+                                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Password" class="form-label small text-muted"></label>
+                                        <input asp-for="Password" class="form-control" />
+                                        <span asp-validation-for="Password" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="ConfirmPassword" class="form-label small text-muted"></label>
+                                        <input asp-for="ConfirmPassword" class="form-control" />
+                                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="DateOfBirth" class="form-label small text-muted"></label>
+                                        <input type="date" asp-for="DateOfBirth" class="form-control" value="@Model?.DateOfBirth.ToString("yyyy-MM-dd")" max="@DateTime.Today.AddYears(-18).ToString("yyyy-MM-dd")" />
+                                        <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Gender" class="form-label small text-muted"></label>
+                                        <select asp-for="Gender" class="form-select">
+                                            <option value="">Choose...</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                        <span asp-validation-for="Gender" class="text-danger small"></span>
+                                    </div>
+
+                                     <div class="col-6">
+                                        <label asp-for="SelectedRole" class="form-label small text-muted">Role</label>
+                                        <select asp-for="SelectedRole" asp-items="ViewBag.RolesList" class="form-select">
+                                            <option value="">-- Select Role --</option>
+                                        </select>
+                                        <span asp-validation-for="SelectedRole" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label asp-for="ProfilePicture" class="form-label small text-muted"></label>
+                                        <input asp-for="ProfilePicture" type="file" id="imageInput" class="form-control" accept=".jpg,.jpeg,.png" />
+                                        <span asp-validation-for="ProfilePicture" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label asp-for="Address" class="form-label small text-muted"></label>
+                                        <textarea asp-for="Address" class="form-control" rows="2" placeholder="1234 Main St, Apt 4B"></textarea>
+                                        <span asp-validation-for="Address" class="text-danger small"></span>
+                                    </div>
+
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 py-2.5 mt-4 fw-semibold shadow-sm">Register</button>
+
+                                <div class="mt-2 form-group">
+                                    Already Registered? Click  
+                                    <a asp-action="Login" asp-controller="Auth">here</a> to Login.
+                                </div>
+
+                            </form>
+                        </div>
+
+                        <!-- Right Live Preview Panel -->
+                        <div class="col-lg-4 bg-light d-flex align-items-center justify-content-center p-1 p-md-3 border-start">
+                            <div class="text-center w-100">
+                                <h5 class="mb-3 text-muted small fw-bold text-uppercase tracking-wider">Profile Preview</h5>
+                                <div class="position-relative d-inline-block mb-3">
+                                    <img id="imagePreview" src="/images/default-avatar.png" 
+                                         alt="Profile Preview" 
+                                         class="rounded-circle shadow border border-4 border-white object-fit-cover" 
+                                         style="width: 180px; height: 180px;" />
+                                </div>
+                                @* <h4 id="previewName" class="fw-bold mb-1 text-dark">Your Name</h4>
+                                <p id="previewEmail" class="text-muted small mb-0">email@example.com</p> *@
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        // Real-time image client upload preview engine
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('imagePreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Optional convenience hooks syncing input text down into preview elements
+        // document.querySelector('input[name="User.FullName"]').addEventListener('input', function(e) {
+        //     document.getElementById('previewName').innerText = e.target.value || "Your Name";
+        // });
+        // document.querySelector('input[name="User.Email"]').addEventListener('input', function(e) {
+        //     document.getElementById('previewEmail').innerText = e.target.value || "email@example.com";
+        // });
+    </script>
+}
+
+
+

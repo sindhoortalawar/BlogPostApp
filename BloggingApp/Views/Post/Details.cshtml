@@ -1,0 +1,154 @@
+﻿@using System.Security.Claims
+@model Post;
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<style>
+    .content-wrapper{
+        padding: 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+        font-family : sans-serif;
+    }
+
+    .feature-image{
+        width: 100%;
+        height: 500px;
+        object-fit: cover;
+        margin-bottom:20px;
+    }
+</style>
+
+@* For debugging purpose only 
+<div class="alert alert-warning small">
+    <strong>Debug Logged-In User Claims:</strong>
+    <ul>
+        @foreach (var claim in User.Claims)
+        {
+            <li>@claim.Type == @claim.Value</li>
+        }
+    </ul>
+</div>
+
+<div>
+    <p>Authenticated: @User.Identity?.IsAuthenticated</p>
+
+    <p>Admin: @User.IsInRole("Admin")</p>
+
+    <p>PostOwner: @User.IsInRole("PostOwner")</p>
+
+    <p>User Id : @(User.FindFirst(ClaimTypes.NameIdentifier)?.Value == Model.UserId)</p>
+</div> 
+
+*@
+
+@if ((User.Identity.IsAuthenticated == true) && User.IsInRole("Admin") || (User.IsInRole("PostOwner") && (User.FindFirst(ClaimTypes.NameIdentifier)?.Value == Model.UserId)))
+{
+    <div class="text-end">
+        <a class="btn btn-secondary my-3" asp-controller="Post" asp-action="Edit" asp-route-id="@Model.Id">Edit Post</a>
+        <a class="btn btn-danger text-white mx-3" asp-controller="Post" asp-action="Delete" asp-route-id="@Model.Id">Delete Post</a>
+    </div>
+}
+
+<div class="content-wrapper">
+    <h1>@Model.Title</h1>
+    <p><span class="badge bg-primary">By : </span> @Model.Author | <span class="badge bg-primary">Published on : </span> @Model.PublishedDate.ToString("MMM dd, yyyy")</p><br />
+    <p><span class="badge bg-secondary">Category : </span> @Model.Category.CategoryName</p> <br />
+    <img src="@Model.FeatureImagePath" alt="@Model.Title" class="feature-image" />
+    <hr />
+
+    <div>@Html.Raw(Model.Content)</div>
+    <hr />
+    <h2>Comments</h2>
+    @if (Model.Comments.Any())
+    { 
+        <div id="commentSection">
+            @foreach(var comment in Model.Comments)
+            {
+                <div class="p-3 card mb-3 shadow-sm">
+                    <h5 class="card-title">@comment.Username</h5>
+                    <p class="card-text text-muted">@comment.CommentDate.ToString("MMM dd, yyyy")</p>
+                    <p class="card-text">@comment.Content</p>
+                </div>
+            }
+        </div>
+
+    }
+    else
+    {
+        <p class="text-muted">No comments yet. Be the first one to comment.</p>
+    }
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <h4>Add a Comment</h4>
+        <hr />
+
+        <form id="commentForm" method="post">        
+            
+            @* <div class="form-group">
+                <label for="Username">Username</label>
+                <input for="Username" id="Username" name="Username" required class="form-control" />
+            </div> *@
+
+            <div class="form-group">
+                <label for="Content">Comment</label>
+                <textarea for="Content" id="Content" name="Content" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-2 p-2 rounded">Submit</button>
+
+        </form>
+    }
+</div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $('#commentForm').on('submit', function(event){
+                    // alert("Form submitted")
+                    event.preventDefault();
+                    // var Username = $("#Username").val();
+                    var Content = $("#Content").val();
+
+                    var postId = @Model.Id;
+
+                    // console.log(Username, Content, postId);
+
+                $.ajax({
+                        //https://localhost:port/Post/AddComment
+                    url : '@Url.Action("AddComment", "Post")',
+                    type : 'POST',
+                    contentType : 'application/json',
+                    data : JSON.stringify(
+                        {
+                            // Username : Username,
+                            Content : Content,
+                            PostId : postId
+                        }
+                    ),
+                    success : function(response){
+                        // console.log("Success")
+                        $('#commentForm')[0].reset();
+                        $('#commentSection').append(
+                            `
+                                <div class="p-3 card mb-3 shadow-sm">
+                                    <h5 class="card-title">${response.username}</h5>
+                                    <p class="card-text text-muted">${response.commentDate}</p>
+                                    <p class="card-text">${response.content}</p>
+                                </div>
+                            `
+                        )
+                    }
+                })
+            });
+        });
+    </script>
+}

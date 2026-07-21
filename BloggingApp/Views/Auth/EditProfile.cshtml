@@ -1,0 +1,139 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model EditProfileViewModel
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        
+                        <!-- Left Form Panel -->
+                        <div class="col-lg-8 p-1 p-md-3">
+                            <h2 class="mb-4 fw-bold text-White mt-0 text-center">@ViewData["Title"]</h2>
+                            <form asp-action="EditProfile" asp-controller="Auth" method="post" enctype="multipart/form-data">
+                                <div asp-validation-summary="All" class="text-danger mb-3 small"></div>
+
+                                <div class="row g-3">
+
+                                    <div class="col-md-12">
+                                        <label asp-for="FullName" class="form-label font-weight-bold small text-muted">Full Name</label>
+                                        <input asp-for="FullName" class="form-control" placeholder="John Doe" />
+                                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Email" class="form-label small text-muted"></label>
+                                        <input asp-for="Email" class="form-control" placeholder="name@example.com" />
+                                        <span asp-validation-for="Email" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="PhoneNumber" class="form-label small text-muted"></label>
+                                        <input asp-for="PhoneNumber" class="form-control" placeholder="" />
+                                        <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="DateOfBirth" class="form-label small text-muted"></label>
+                                        <input type="date" asp-for="DateOfBirth" class="form-control" max="@DateTime.UtcNow.AddYears(-18).ToString("yyyy-MM-dd")" />
+                                        <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Gender" class="form-label small text-muted"></label>
+                                        <select asp-for="Gender" class="form-select">
+                                            <option value="">Choose...</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                        <span asp-validation-for="Gender" class="text-danger small"></span>
+                                    </div>
+
+                                     <div class="col-6">
+                                        <label asp-for="SelectedRole" class="form-label small text-muted">Role</label>
+                                        <select asp-for="SelectedRole" asp-items="ViewBag.RolesList" class="form-select">
+                                            <option value="">-- Select Role --</option>
+                                        </select>
+                                        <span asp-validation-for="SelectedRole" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label asp-for="ProfilePicture" class="form-label small text-muted"></label>
+                                        <input asp-for="ProfilePicture" type="file" id="imageInput" class="form-control" accept=".jpg,.jpeg,.png" />
+                                        <span asp-validation-for="ProfilePicture" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label asp-for="Address" class="form-label small text-muted"></label>
+                                        <textarea asp-for="Address" class="form-control" rows="2" placeholder="1234 Main St, Apt 4B"></textarea>
+                                        <span asp-validation-for="Address" class="text-danger small"></span>
+                                    </div>
+
+                                </div>
+                                <div class="row g-4">
+                                <div class="col-6">
+                                    <button type="submit" class="btn btn-primary w-100 py-2.5 mt-4 fw-semibold shadow-sm">Update Profile</button>
+                                </div>
+                                <div class="col-6">
+                                    <a asp-controller="Auth" asp-action="Profile" class="btn btn-secondary w-100 py-2.5 mt-4 fw-semibold shadow-sm ">Cancel</a>
+                                </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Right Live Preview Panel -->
+                        <div class="col-lg-4 bg-light d-flex align-items-center justify-content-center p-1 p-md-3 border-start">
+                            <div class="text-center w-100">
+                                <h5 class="mb-3 text-muted small fw-bold text-uppercase tracking-wider">Profile Preview</h5>
+                                <div class="position-relative d-inline-block mb-3">
+                                    <img id="imagePreview" 
+                                         src="@(string.IsNullOrEmpty(Model?.ProfilePictureUrl) ? "/profiles/admin.jpg" : Model.ProfilePictureUrl)"
+                                         alt="Profile Preview" 
+                                         class="rounded-circle shadow border border-4 border-white object-fit-cover" 
+                                         style="width: 180px; height: 180px;" />
+                                </div>
+                                @* <h4 id="previewName" class="fw-bold mb-1 text-dark">Your Name</h4>
+                                <p id="previewEmail" class="text-muted small mb-0">email@example.com</p> *@
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        // Real-time image client upload preview engine
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('imagePreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Optional convenience hooks syncing input text down into preview elements
+        // document.querySelector('input[name="User.FullName"]').addEventListener('input', function(e) {
+        //     document.getElementById('previewName').innerText = e.target.value || "Your Name";
+        // });
+        // document.querySelector('input[name="User.Email"]').addEventListener('input', function(e) {
+        //     document.getElementById('previewEmail').innerText = e.target.value || "email@example.com";
+        // });
+    </script>
+}
+

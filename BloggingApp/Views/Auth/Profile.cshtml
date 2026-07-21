@@ -1,0 +1,76 @@
+﻿@model ProfileViewModel
+
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+            <h3>@ViewData["Title"]</h3>
+        </div>
+
+        <div class="card-body">
+
+            <div class="text-center mb-4">
+                <img src="@(string.IsNullOrEmpty(Model.ProfilePictureUrl)
+                                     ? "/images/default-avatar.png"
+                                     : Model.ProfilePictureUrl)"
+                     class="rounded-circle border"
+                     width="150"
+                     height="150" />
+            </div>
+
+            <table class="table table-bordered">
+                <tr>
+                    <th>Full Name</th>
+                    <td>@Model.FullName</td>
+                </tr>
+
+                <tr>
+                    <th>Email</th>
+                    <td>@Model.Email</td>
+                </tr>
+
+                <tr>
+                    <th>Role</th>
+                    <td>@Model.SelectedRole</td>
+                </tr>
+
+                <tr>
+                    <th>Date Of Birth</th>
+                    <td>@Model.DateOfBirth.ToString("dd-MMM-yyyy")</td>
+                </tr>
+                <tr>
+                    <th>Gender</th>
+                    <td>@Model.Gender</td>
+                </tr>
+
+                <tr>
+                    <th>Phone Number</th>
+                    <td>@Model.PhoneNumber</td>
+                </tr>
+
+                <tr>
+                    <th>Address</th>
+                    <td>@Model.Address</td>
+                </tr>
+            </table>
+
+            <div class="mt-3 text-center">
+                <a asp-action="EditProfile" asp-controller="Auth"
+                   class="btn btn-warning me-2">
+                    Edit Profile
+                </a>
+
+                <a asp-action="Index" asp-controller="Post"
+                   class="btn btn-secondary ms-2">
+                    Home
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>

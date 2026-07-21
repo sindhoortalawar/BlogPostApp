@@ -1,0 +1,81 @@
+﻿@using System.Security.Claims
+@model EditPostViewModel
+
+@{
+    ViewData["Title"] = "Edit Post";
+}
+
+<style>
+    .content-wrapper{
+        padding : 20px;
+        max-width : 1000px;
+        margin: 0 auto;
+        font-family : sans-serif;
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="row">
+        <div class="col-6">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="Post" asp-action="Details" asp-route-id="@Model.Post.Id" class="p-2 btn btn-primary">Back to Post</a>
+        </div>
+    </div>
+
+    <hr/>
+
+    <form asp-action="Edit" asp-controller="Post" method="post" enctype="multipart/form-data">
+        <div class="validation-summary">
+            <div asp-validation-summary="All" class="text-danger"></div>
+        </div>
+        <input asp-for="Post.UserId" value="@User.FindFirst(ClaimTypes.NameIdentifier)?.Value" hidden />
+        <input asp-for="Post.Id" hidden />
+        <div class="form-group mt-2">
+            <label asp-for="Post.Title">Title</label>
+            <input asp-for="Post.Title" class="form-control" />
+            <span asp-validation-for="Post.Title" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mt-2">
+            <label asp-for="Post.CategoryId">Category</label>
+            <select asp-for="Post.CategoryId" asp-items="Model.Categories" class="form-control">
+                <option value="">-- Select --</option>
+            </select>
+            <span asp-validation-for="Post.CategoryId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mt-2">
+            <label asp-for="Post.Author">Author</label>
+            <input asp-for="Post.Author" class="form-control" />
+            <span asp-validation-for="Post.Author" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mt-2">
+            <label asp-for="Post.Content">Content</label>
+            <textarea asp-for="Post.Content" class="form-control"></textarea>
+            <span asp-validation-for="Post.Content" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mt-2">
+            <label asp-for="FeatureImage">Feature Image</label>
+            <input type="file" asp-for="FeatureImage" class="form-control" />
+            @* <span asp-validation-for="FeatureImage" class="text-danger"></span> *@
+        </div>
+
+        <button type="submit" class="p-2 btn btn-primary mt-3">Update</button>
+        <a class="p-2 btn btn-secondary mt-3" asp-controller="Post" asp-action="Details" asp-route-id="@Model.Post.Id">Back to Post</a> 
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.tiny.cloud/1/8v7ap9no879e3vf48t9bipzno7dfbo8dgefvm9kgcttuz3nu/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+        selector: 'textarea'
+        });
+    </script>
+}
+
+

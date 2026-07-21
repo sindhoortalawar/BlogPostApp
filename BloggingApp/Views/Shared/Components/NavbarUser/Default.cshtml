@@ -1,0 +1,33 @@
+﻿@model AppUser
+
+<ul class="navbar-nav ms-auto align-items-center">
+    @if (Model != null)
+    {
+        <li class="nav-item d-flex align-items-center me-3">
+            <img src="@(string.IsNullOrEmpty(Model.ProfilePictureUrl) ? "/profiles/admin.png" : Model.ProfilePictureUrl)"
+                 alt="Profile"
+                 class="rounded-circle border border-2 border-light object-fit-cover me-2"
+                 style="width: 50px; height: 50px;" />
+
+            <span class="text-white fw-semibold">
+                @(string.IsNullOrEmpty(Model.FullName) ? User.Identity?.Name : Model.FullName)
+            </span>
+        </li>
+
+        <li class="nav-item">
+            <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-outline-light">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-white" asp-controller="Auth" asp-action="Login">Login</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-white" asp-controller="Auth" asp-action="Register">Register</a>
+        </li>
+    }
+</ul>
