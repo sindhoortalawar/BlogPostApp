@@ -25,19 +25,19 @@ namespace BloggingApp.Models
         [ForeignKey("Category")]
         public int CategoryId { get; set; }
         [ValidateNever]
-        public Category Category { get; set; } 
+        public Category? Category { get; set; } 
 
         [ValidateNever]
         public string UserId { get; set; } = string.Empty;
         [ValidateNever]
         [ForeignKey("UserId")]
-        public AppUser AppUser { get; set; }
+        public AppUser? AppUser { get; set; }
 
         [ValidateNever]
         public string FeatureImagePath { get; set; } = string.Empty;
 
         [ValidateNever]
-        public ICollection<Comment> Comments { get; set; } 
+        public ICollection<Comment>? Comments { get; set; } 
 
         [Required]
         public bool IsActive { get; set; } = true;

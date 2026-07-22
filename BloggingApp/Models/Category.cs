@@ -14,6 +14,6 @@ namespace BloggingApp.Models
 
         public string? Description { get; set; }
 
-        public ICollection<Post> Posts { get; set; }
+        public ICollection<Post>? Posts { get; set; }
     }
 }

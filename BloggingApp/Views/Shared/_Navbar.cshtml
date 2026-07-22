@@ -24,11 +24,11 @@
                     }
                     else if(User.IsInRole("Admin"))
                     {
-                        <liv class="nav-item">
-                            <a asp-controller="Auth" asp-action="GetUsers">Manage Users</a>
-                        </liv>
                         <li class="nav-item">
-                            <a asp-controller="Post" asp-action="Index">Manage Blogs</a>
+                            <a class="nav-link" asp-controller="Auth" asp-action="GetUsers">Manage-Users</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Post" asp-action="Index">Manage-Blogs</a>
                         </li>
                     }
                     <li class="nav-item">

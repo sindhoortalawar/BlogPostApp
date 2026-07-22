@@ -51,7 +51,7 @@ namespace BloggingApp.Controllers
         [Authorize(Roles = "Admin, PostOwner")]
         public async Task<IActionResult> Create(PostViewModel postViewModel)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && postViewModel != null)
             {
                 var inputFileExtension = Path.GetExtension(postViewModel.FeatureImage.FileName).ToLower();
 
@@ -88,7 +88,6 @@ namespace BloggingApp.Controllers
             return View(postViewModel);
 
         }
-
 
         [HttpPost]
         [Authorize(Roles = "Admin, PostOwner")]

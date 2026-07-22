@@ -49,7 +49,7 @@
 
 *@
 
-@if ((User.Identity.IsAuthenticated == true) && User.IsInRole("Admin") || (User.IsInRole("PostOwner") && (User.FindFirst(ClaimTypes.NameIdentifier)?.Value == Model.UserId)))
+@if ((User.Identity.IsAuthenticated == true) && (User.IsInRole("Admin") || (User.IsInRole("PostOwner") && (User.FindFirst(ClaimTypes.NameIdentifier)?.Value == Model.UserId))))
 {
     <div class="text-end">
         <a class="btn btn-secondary my-3" asp-controller="Post" asp-action="Edit" asp-route-id="@Model.Id">Edit Post</a>
@@ -129,7 +129,7 @@
                     // var Username = $("#Username").val();
                     var Content = $("#Content").val();
 
-                    var postId = @Model.Id;
+                    var postId = @(Model != null ? Model.Id : 0);
 
                     // console.log(Username, Content, postId);
 

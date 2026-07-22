@@ -19,6 +19,6 @@ namespace BloggingApp.Models
 
         [ForeignKey("Post")]
         public int PostId { get; set; }
-        public Post Post { get; set; }
+        public Post? Post { get; set; }
     }
 }

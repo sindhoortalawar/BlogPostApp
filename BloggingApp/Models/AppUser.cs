@@ -21,7 +21,7 @@ namespace BloggingApp.Models
         public string Gender { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "*Address is required")]
-        public string Address { get; set; }
+        public string Address { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "*Profile picture is required.")]
         public string ProfilePictureUrl { get; set; } = string.Empty;

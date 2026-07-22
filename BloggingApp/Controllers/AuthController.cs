@@ -58,23 +58,22 @@ namespace BloggingApp.Controllers
 
             // Validate Email - User with the given email is exists in the DB or not
             var user = await _userManager.FindByEmailAsync(loginModel.Email);
-            if (user == null) return View(loginModel);
+            if (user == null || user.IsActive == false)
+            {
+                _logger.LogWarning("Authentication failed: User with email {Email} is deactivated or user does not exist.", loginModel.Email);
+                ModelState.AddModelError("", "Failed to Login. User with entered email is deactivated or user does not exist. Contact admin to activate.");
+                return View(loginModel);
+            }
 
             var signInResult = await _signInManager.PasswordSignInAsync(user, loginModel.Password, isPersistent: false, lockoutOnFailure: false);
             // Check user is valid and Validate password
+            
             if (!signInResult.Succeeded)
             {
                 _logger.LogInformation("Authentication failed: Invalid credentials : {Email}", loginModel.Email); // Structured Logging
                 ModelState.AddModelError("", "Authentication failed: Invalid credentials. Please try again.");
                 return View(loginModel);
             }
-
-            //var claims = new List<Claim>
-            //{
-            //    new Claim("UserName", user.Email),
-            //    new Claim(ClaimTypes.Email, user.Email),
-            //    new Claim("FullName", user.FullName),
-            //};
 
             HttpContext.Session.SetString("FullName", user.FullName);
             
@@ -105,7 +104,8 @@ namespace BloggingApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Register()
         {
-            var roles = await GetRolesList(null);
+            var user = await _userManager.GetUserAsync(User);
+            var roles = await GetRolesList(user);
             ViewBag.RolesList = new SelectList(roles, "Name", "Name");
 
             return View();
@@ -165,7 +165,8 @@ namespace BloggingApp.Controllers
                     _logger.LogInformation("Registration Successful : User with email {Email} registered successfully.", registerModel.Email);
 
                    // Optional - Signin the user after successful registration
-                   await _signInManager.SignInAsync(user, isPersistent: false);
+                   if(await _userManager.GetUserAsync(User) == null)
+                    await _signInManager.SignInAsync(user, isPersistent: false);
 
                     return RedirectToAction("Index", "Post");
                 }
@@ -217,7 +218,7 @@ namespace BloggingApp.Controllers
             if (user == null) return BadRequest();
 
             //GetRolesList();
-            var roles = await GetRolesList(_userManager.GetRolesAsync(user).ToString());
+            var roles = await GetRolesList(user);
             ViewBag.RolesList = new SelectList(roles, "Name", "Name");
 
 
@@ -248,7 +249,7 @@ namespace BloggingApp.Controllers
 
             if (!ModelState.IsValid)
             {
-                var roles = await GetRolesList(_userManager.GetRolesAsync(user).ToString());
+                var roles = await GetRolesList(user);
                 ViewBag.RolesList = new SelectList(roles, "Name", "Name");
                 return View(editProfileModel);
             }
@@ -317,11 +318,54 @@ namespace BloggingApp.Controllers
             return View(changePasswordModel);
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var  userList = new List<UsersViewModel>();
+            List<AppUser> users  = await _userManager.Users.ToListAsync();
 
-        private async Task<List<IdentityRole>> GetRolesList(string? userRole)
+            foreach(var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                userList.Add( new UsersViewModel
+                {
+                    UserId = user.Id,
+                    FullName = user.FullName,
+                    Email = user.Email,
+                    SelectedRole = roles.FirstOrDefault() ?? "No Role",
+                    DateOfBirth = user.DateOfBirth,
+                    Gender = user.Gender,
+                    PhoneNumber = user.PhoneNumber,
+                    Address = user.Address,
+                    ProfilePictureUrl = user.ProfilePictureUrl,
+                    IsActive = user.IsActive
+                });
+                
+
+            }
+
+            return View(userList);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null) return NotFound();
+
+            user.IsActive = false;
+
+            return RedirectToAction("GetUsers", "Auth");
+        }
+
+
+        private async Task<List<IdentityRole>> GetRolesList(AppUser? user)
         {
             List<IdentityRole> roles;
-            if (userRole != null && userRole.Equals("Admin"))
+            if (user != null)
                 roles = await _roleManager.Roles.ToListAsync();
             else
                 roles = await _roleManager.Roles.Where(r => r.Name != "Admin" && r.Name != "SuperAdmin" && r.Name != "Manager").ToListAsync();
@@ -363,6 +407,8 @@ namespace BloggingApp.Controllers
             return "/profiles/" + fileName;
 
         }
+
+
 
     }
 }

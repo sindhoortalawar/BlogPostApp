@@ -5,11 +5,11 @@ namespace BloggingApp.Models.ViewModels
 {
     public class PostViewModel
     {
-        public Post Post { get; set; }
+        public Post? Post { get; set; } 
 
         [ValidateNever]
-        public IEnumerable<SelectListItem> Categories { get; set; }
+        public IEnumerable<SelectListItem>? Categories { get; set; }
 
-        public IFormFile FeatureImage { get; set; }
+        public IFormFile? FeatureImage { get; set; }
     }
 }
