@@ -49,7 +49,7 @@
 
 *@
 
-@if ((User.Identity.IsAuthenticated == true) && (User.IsInRole("Admin") || (User.IsInRole("PostOwner") && (User.FindFirst(ClaimTypes.NameIdentifier)?.Value == Model.UserId))))
+@if ((User?.Identity?.IsAuthenticated == true) && (User.IsInRole("Admin") || (User.IsInRole("PostOwner") && (User.FindFirst(ClaimTypes.NameIdentifier)?.Value == Model.UserId))))
 {
     <div class="text-end">
         <a class="btn btn-secondary my-3" asp-controller="Post" asp-action="Edit" asp-route-id="@Model.Id">Edit Post</a>
@@ -60,14 +60,14 @@
 <div class="content-wrapper">
     <h1>@Model.Title</h1>
     <p><span class="badge bg-primary">By : </span> @Model.Author | <span class="badge bg-primary">Published on : </span> @Model.PublishedDate.ToString("MMM dd, yyyy")</p><br />
-    <p><span class="badge bg-secondary">Category : </span> @Model.Category.CategoryName</p> <br />
+    <p><span class="badge bg-secondary">Category : </span> @Model.Category?.CategoryName</p> <br />
     <img src="@Model.FeatureImagePath" alt="@Model.Title" class="feature-image" />
     <hr />
 
     <div>@Html.Raw(Model.Content)</div>
     <hr />
     <h2>Comments</h2>
-    @if (Model.Comments.Any())
+    @if (Model.Comments?.Any() == true)
     { 
         <div id="commentSection">
             @foreach(var comment in Model.Comments)
@@ -75,7 +75,7 @@
                 <div class="p-3 card mb-3 shadow-sm">
                     <div class="d-flex justify-content-between"> 
                         <h5 class="card-title">@comment.Username</h5>
-                        @if (User.Identity.IsAuthenticated == true && User.IsInRole("Admin"))
+                        @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
                         {
                             <form asp-action="DeleteComment" asp-controller="Post" method="post"> 
                                 <input name="id" value="@comment.Id" hidden />
@@ -97,7 +97,7 @@
         <p class="text-muted">No comments yet. Be the first one to comment.</p>
     }
 
-    @if (User.Identity.IsAuthenticated)
+    @if (User?.Identity?.IsAuthenticated == true)
     {
         <h4>Add a Comment</h4>
         <hr />
@@ -147,11 +147,24 @@
                     ),
                     success : function(response){
                         // console.log("Success")
+                        let deleteCommentBtn = '';
+                        if(response.isAdmin)
+                        {
+                            deleteCommentBtn = `
+                                    <form asp-action="DeleteComment" asp-controller="Post" method="post">
+                                        <input name="id" value="${response.id}" hidden />
+                                        <button class="btn btn-danger p-1" onclick="return confirm('Are you sure?');">Delete</button>
+                                    </form>
+                            `;
+                        }
                         $('#commentForm')[0].reset();
                         $('#commentSection').append(
                             `
                                 <div class="p-3 card mb-3 shadow-sm">
-                                    <h5 class="card-title">${response.username}</h5>
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title">${response.username}</h5>
+                                        ${deleteCommentBtn}
+                                    </div>
                                     <p class="card-text text-muted">${response.commentDate}</p>
                                     <p class="card-text">${response.content}</p>
                                 </div>

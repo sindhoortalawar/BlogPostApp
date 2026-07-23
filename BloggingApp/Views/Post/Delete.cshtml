@@ -16,15 +16,15 @@
             <dt class="col-md-3">Author</dt>
             <dd class="col-md-9">:  @Model.Author</dd>
             <dt class="col-md-3">Category</dt>
-            <dd class="col-md-9">:  @Model.Category.CategoryName</dd>
+            <dd class="col-md-9">:  @Model?.Category?.CategoryName</dd>
             <dt class="col-md-3">Published on</dt>
-            <dd class="col-md-9">:  @Model.PublishedDate.ToString("MMMM dd, yyyy")</dd>
+            <dd class="col-md-9">:  @Model?.PublishedDate.ToString("MMMM dd, yyyy")</dd>
         </dl>
 
         <form asp-action="DeleteConfirm" asp-controller="Post" method="post">
             <input asp-for="Id" hidden>
             <button type="submit" class="btn btn-danger mt-2">Delete</button>
-            <a asp-action="Details" asp-controller="Post" asp-route-id ="@Model.Id" class="btn btn-secondary mt-2">Cancel</a>
+            <a asp-action="Details" asp-controller="Post" asp-route-id ="@Model?.Id" class="btn btn-secondary mt-2">Cancel</a>
         </form>
     </div>
 </div>

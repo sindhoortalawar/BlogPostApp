@@ -53,7 +53,7 @@ namespace BloggingApp.Controllers
         {
             if (ModelState.IsValid && postViewModel != null)
             {
-                var inputFileExtension = Path.GetExtension(postViewModel.FeatureImage.FileName).ToLower();
+                var inputFileExtension = Path.GetExtension(postViewModel.FeatureImage?.FileName ?? string.Empty).ToLower();
 
                 bool isAllowed = _allowedExtensions.Contains(inputFileExtension);
 
@@ -65,19 +65,22 @@ namespace BloggingApp.Controllers
                 }
 
                 //Assign user id to the newly created post
-                
-                postViewModel.Post.FeatureImagePath = await UploadFileFolder(postViewModel.FeatureImage);
+                if (postViewModel?.Post != null && postViewModel.FeatureImage != null)
+                {
+                    postViewModel.Post.FeatureImagePath = await UploadFileFolder(postViewModel.FeatureImage);
+                }
+                if (postViewModel != null && postViewModel.Post != null)
+                {
+                    await context.Posts.AddAsync(postViewModel.Post);
 
-                await context.Posts.AddAsync(postViewModel.Post);
-
-                await context.SaveChangesAsync();
-
+                    await context.SaveChangesAsync();
+                }
                 logger.LogInformation("A Blog post has been created by the user");
                 TempData["Success"] = "New Blogpost created successfully.";
                 return RedirectToAction("MyBlogs");
             }
 
-            postViewModel.Categories = context.Categories.Select(c =>
+            postViewModel?.Categories = context.Categories.Select(c =>
             new SelectListItem
                 {
                     Value = c.Id.ToString(),
@@ -94,15 +97,16 @@ namespace BloggingApp.Controllers
         public async Task<IActionResult> Edit(EditPostViewModel editPostViewModel) 
         {
             if (editPostViewModel == null) return NotFound();
+
             var user = await userManager.GetUserAsync(User);
 
-            if(user?.Id != editPostViewModel.Post.UserId)
+            if(user?.Id != editPostViewModel?.Post?.UserId)
             {
                 ModelState.AddModelError("", "**You are not Authorized to perform this operation.");
             }
             if(!ModelState.IsValid)
             {
-                editPostViewModel.Categories = context.Categories.Select(c =>
+                editPostViewModel?.Categories = context.Categories.Select(c =>
                     new SelectListItem
                     {
                         Value = c.Id.ToString(),
@@ -112,7 +116,8 @@ namespace BloggingApp.Controllers
 
                 return View(editPostViewModel);
             }
-            if (editPostViewModel.FeatureImage != null)
+            var postId = editPostViewModel?.Post?.Id;
+            if (editPostViewModel?.FeatureImage != null)
             {
                 var inputFileExtension = Path.GetExtension(editPostViewModel.FeatureImage.FileName).ToLower();
 
@@ -126,30 +131,33 @@ namespace BloggingApp.Controllers
                     return View(editPostViewModel);
                 }
 
-                var existingFile = await context.Posts.AsNoTracking().FirstOrDefaultAsync(p => p.Id == editPostViewModel.Post.Id);
-
-                var oldFilePath = Path.Combine(webHostEnvironment.WebRootPath, "images", Path.GetFileName(existingFile.FeatureImagePath));
+                var existingFile = await context.Posts.AsNoTracking().FirstOrDefaultAsync(p => p.Id == postId);
+                string oldFilePath = string.Empty;
+                if (existingFile != null)
+                    oldFilePath = Path.Combine(webHostEnvironment.WebRootPath, "images", Path.GetFileName(existingFile.FeatureImagePath));
 
                 if (System.IO.File.Exists(oldFilePath)) System.IO.File.Delete(oldFilePath);
 
-                editPostViewModel.Post.FeatureImagePath = await UploadFileFolder(editPostViewModel.FeatureImage);
+                editPostViewModel?.Post?.FeatureImagePath = await UploadFileFolder(editPostViewModel.FeatureImage);
             }
             else
             {
-                var existingPost = await context.Posts.AsNoTracking().FirstOrDefaultAsync(p => p.Id == editPostViewModel.Post.Id);
+                var existingPost = await context.Posts.AsNoTracking().FirstOrDefaultAsync(p => p.Id == postId);
 
                 if (existingPost == null) return NotFound();
 
-                editPostViewModel.Post.FeatureImagePath = existingPost.FeatureImagePath;
+                editPostViewModel?.Post?.FeatureImagePath = existingPost.FeatureImagePath;
             }
+            if((editPostViewModel != null) && (editPostViewModel.Post != null))
+            {
+                context.Posts.Update(editPostViewModel.Post);
 
-            context.Posts.Update(editPostViewModel.Post);
-
-            await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
+            }
 
             logger.LogInformation("The Blog post details have been updated by the user.");
             TempData["Success"] = "Blogpost details updated successfully.";
-            return RedirectToAction("Details", "Post", new { id = editPostViewModel.Post.Id });
+            return RedirectToAction("Details", "Post", new { id = postId });
 
         }
 
@@ -202,6 +210,8 @@ namespace BloggingApp.Controllers
         {
             var user = await userManager.GetUserAsync(User);
 
+            if (user == null) return Json(new { error = "Error : Failed to add comment. Please try again." });
+
             comment.Username = user.FullName;
             comment.CommentDate = DateTime.UtcNow;
 
@@ -212,9 +222,11 @@ namespace BloggingApp.Controllers
             return Json(
                 new
                 {
+                    id = comment.Id,
                     username = user.FullName,
                     commentDate = comment.CommentDate.ToString("MMMM dd, yyyy"),
                     content = comment.Content,
+                    isAdmin = User.Identity?.IsAuthenticated == true && User.IsInRole("Admin")
                 }
             );
         }

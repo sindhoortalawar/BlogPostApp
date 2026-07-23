@@ -61,7 +61,7 @@ namespace BloggingApp.Controllers
             if (user == null || user.IsActive == false)
             {
                 _logger.LogWarning("Authentication failed: User with email {Email} is deactivated or user does not exist.", loginModel.Email);
-                ModelState.AddModelError("", "Failed to Login. User with entered email is deactivated or user does not exist. Contact admin to activate.");
+                ModelState.AddModelError("", "Failed to Login. User with entered email is deactivated or user does not exist. Please register or Contact admin to activate the user if already registered.");
                 return View(loginModel);
             }
 
@@ -164,11 +164,15 @@ namespace BloggingApp.Controllers
 
                     _logger.LogInformation("Registration Successful : User with email {Email} registered successfully.", registerModel.Email);
 
-                   // Optional - Signin the user after successful registration
-                   if(await _userManager.GetUserAsync(User) == null)
-                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    // Optional - Signin the user after successful registration
+                    if (await _userManager.GetUserAsync(User) == null)
+                    {
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                    
+                        return RedirectToAction("Index", "Post");
+                    }
 
-                    return RedirectToAction("Index", "Post");
+                    return RedirectToAction("GetUsers", "Auth");
                 }
 
                 foreach(var error in result.Errors)
@@ -197,13 +201,13 @@ namespace BloggingApp.Controllers
             {
                 UserId = user.Id,
                 FullName = user.FullName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
+                Email = user.Email ?? string.Empty,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
                 Gender = user.Gender,
                 Address = user.Address,
                 DateOfBirth = user.DateOfBirth,
                 ProfilePictureUrl = user.ProfilePictureUrl,
-                SelectedRole = role,
+                SelectedRole = role ?? string.Empty,
 
             };
             return View(userProfile);
@@ -211,11 +215,15 @@ namespace BloggingApp.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> EditProfile()
+        public async Task<IActionResult> EditProfile(string? userId)
         {
-            var user = await _userManager.GetUserAsync(User);
+            AppUser? user ;
+            if (!string.IsNullOrEmpty(userId))
+                user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            else
+                user = await _userManager.GetUserAsync(User);
 
-            if (user == null) return BadRequest();
+            if (user == null) return NotFound();
 
             //GetRolesList();
             var roles = await GetRolesList(user);
@@ -228,12 +236,12 @@ namespace BloggingApp.Controllers
             {
                 UserId = user.Id,
                 FullName = user.FullName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
+                Email = user.Email ?? string.Empty,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
                 DateOfBirth = user.DateOfBirth,
                 Gender = user.Gender,
                 Address = user.Address,
-                SelectedRole = role 
+                SelectedRole = role ?? string.Empty
             };
 
             return View(userProfile);
@@ -243,9 +251,9 @@ namespace BloggingApp.Controllers
         [Authorize]
         public async Task<IActionResult> EditProfile(EditProfileViewModel editProfileModel)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == editProfileModel.UserId);
 
-            if (user == null || user.Id != editProfileModel.UserId) return NotFound();
+            if (user == null) return NotFound();
 
             if (!ModelState.IsValid)
             {
@@ -287,7 +295,11 @@ namespace BloggingApp.Controllers
 
             await _userManager.UpdateAsync(user);
             TempData["Success"] = "User details updated successfully.";
-            return RedirectToAction("Profile", "Auth");
+
+            // Check whether the given user is same as the currently logged in user
+            var currentUser = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (user.Id == currentUser) return RedirectToAction("Profile", "Auth");
+            else return RedirectToAction("GetUsers", "Auth");
         }
 
         [HttpGet]
@@ -332,11 +344,11 @@ namespace BloggingApp.Controllers
                 {
                     UserId = user.Id,
                     FullName = user.FullName,
-                    Email = user.Email,
+                    Email = user.Email ?? string.Empty,
                     SelectedRole = roles.FirstOrDefault() ?? "No Role",
                     DateOfBirth = user.DateOfBirth,
                     Gender = user.Gender,
-                    PhoneNumber = user.PhoneNumber,
+                    PhoneNumber = user.PhoneNumber ?? string.Empty,
                     Address = user.Address,
                     ProfilePictureUrl = user.ProfilePictureUrl,
                     IsActive = user.IsActive
@@ -348,26 +360,45 @@ namespace BloggingApp.Controllers
             return View(userList);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> Delete(string id)
         {
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null) return NotFound();
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null || currentUser.Id.Equals(user.Id))
+            {
+                TempData["Error"] = "You cannot perform the this operation on this user.";
+            }
+            else
+            {
+                if (user.IsActive) user.IsActive = false;
 
-            user.IsActive = false;
+                else user.IsActive = true;
+
+                await _userManager.UpdateAsync(user);
+            }
 
             return RedirectToAction("GetUsers", "Auth");
         }
 
 
-        private async Task<List<IdentityRole>> GetRolesList(AppUser? user)
+        private async Task<List<IdentityRole>?> GetRolesList(AppUser? user)
         {
             List<IdentityRole> roles;
-            if (user != null)
+            var loggedInUser = await _userManager.GetUserAsync(User);
+
+            if (loggedInUser == null) return null ;
+
+            var loggedInUserRole = (await _userManager.GetRolesAsync(loggedInUser)).FirstOrDefault();
+
+            if (user != null && (loggedInUserRole == "Admin"))
+                // If LoggedIn user is Admin display all the available roles
                 roles = await _roleManager.Roles.ToListAsync();
             else
+                // Otherwise display only non-admin specific roles for the user
                 roles = await _roleManager.Roles.Where(r => r.Name != "Admin" && r.Name != "SuperAdmin" && r.Name != "Manager").ToListAsync();
 
             //if (roles == null) return null;
